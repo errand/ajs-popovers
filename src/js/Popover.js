@@ -1,8 +1,8 @@
+/* eslint-disable class-methods-use-this */
 export default class Popover {
   constructor(element) {
     this.element = element;
     this.registerEvents();
-
   }
 
   checkBinding() {
@@ -19,18 +19,18 @@ export default class Popover {
   clickedPopover = e => {
     e.preventDefault();
     const el = e.target;
-    if(el.getAttribute('aria-describedby')) {
+    if (el.getAttribute('aria-describedby')) {
       const id = el.getAttribute('aria-describedby');
       el.removeAttribute('aria-describedby');
       this.removePopover(id);
     } else {
       const id = `ajs-${this.getRandomInt()}`;
       el.setAttribute('aria-describedby', id);
-      this.createPopover(id, el.dataset.ajsTitle, el.dataset.ajsContent, el.dataset.ajsPosition)
+      this.createPopover(id, el.dataset.ajsTitle, el.dataset.ajsContent, el.dataset.ajsPosition);
     }
   }
 
-  createPopover(id, title, content, position = 'top') {
+  createPopover(id, title, content, position = 'bottom') {
     const popover = document.createElement('div');
     popover.id = id;
     popover.classList.add('popover');
@@ -43,59 +43,60 @@ export default class Popover {
 
     document.querySelector('body').appendChild(popover);
 
-    this.movePopover();
-    window.addEventListener('scroll', (e) => this.movePopover());
+    this.movePopovers();
   }
 
+  movePopovers() {
+    const popovers = [...document.querySelectorAll('.popover')];
+    if (popovers) {
+      popovers.forEach(popover => {
+        const popoverTrigger = document.querySelector(`[aria-describedby="${popover.id}"]`);
+        const popoverTriggerPosition = popoverTrigger.getBoundingClientRect();
+        const element = popover;
 
-  movePopover() {
-    let popover = document.querySelector('.popover')
-    if (popover) {
-      let target = popover.previousSibling;
-      let targetPosition = target.getBoundingClientRect();
+        switch (popover.dataset.popoverPosition) {
+          case ('top'):
+            element.style.top = `${popoverTriggerPosition.top - popoverTriggerPosition.height - 10}px`;
+            element.style.left = `${popoverTriggerPosition.x + popoverTriggerPosition.width / 2}px`;
+            element.style.transform = 'translateX(-50%)';
+            break;
 
-      switch (target.dataset.position) {
-        case ('top'):
-          popover.style.top = targetPosition.top - targetPosition.height - 10 + 'px';
-          popover.style.left = targetPosition.x + targetPosition.width / 2 + 'px';
-          popover.style.transform = 'translateX(-50%)';
-          break;
+          case ('bottom'):
+            element.style.top = `${popoverTriggerPosition.top + popoverTriggerPosition.height + 5}px`;
+            element.style.left = `${popoverTriggerPosition.x + popoverTriggerPosition.width / 2}px`;
+            element.style.transform = 'translateX(-50%)';
+            break;
 
-        case ('bottom'):
-          popover.style.top = targetPosition.top + targetPosition.height + 'px';
-          popover.style.left = targetPosition.x + targetPosition.width / 2 + 'px';
-          popover.style.transform = 'translateX(-50%)';
-          break;
+          case ('left'):
+            element.style.top = `${popoverTriggerPosition.top}px`;
+            element.style.left = `${popoverTriggerPosition.x - 5}px`;
+            element.style.transform = 'translate(-100%, -50%)';
+            break;
 
-        case ('left'):
-          popover.style.top = targetPosition.top - 5 + 'px';
-          popover.style.left = targetPosition.x + 'px';
-          popover.style.transform = 'translateX(-100%)';
-          break;
+          case ('right'):
+            element.style.top = `${popoverTriggerPosition.top}px`;
+            element.style.left = `${popoverTriggerPosition.x + popoverTriggerPosition.width + 5}px`;
+            element.style.transform = 'translateY(-50%)';
+            break;
 
-        case ('right'):
-          popover.style.top = targetPosition.top - 5 + 'px';
-          popover.style.left = targetPosition.x + targetPosition.width + 'px';
-          break;
-
-        default:
-          popover.style.top = targetPosition.top + targetPosition.height + 'px';
-          popover.style.left = targetPosition.x + (targetPosition.width / 2) + 'px';
-          popover.style.transform = 'translateX(-50%)';
-          break;
-      }
+          default:
+            element.style.top = `${popoverTriggerPosition.top + popoverTriggerPosition.height}px`;
+            element.style.left = `${popoverTriggerPosition.x + (popoverTriggerPosition.width / 2)}px`;
+            element.style.transform = 'translateX(-50%)';
+            break;
+        }
+      });
     }
   }
 
-  removePopover() {
-    const popover = document.querySelector('.popover');
+  removePopover(id) {
+    const popover = document.querySelector(`#${id}`);
     if (popover) {
       popover.remove();
-      window.removeEventListener('scroll', (e) => this.movePopover());
     }
   }
 
   getRandomInt() {
-    return  Math.floor(1000 + Math.random() * 99999);
+    return Math.floor(1000 + Math.random() * 99999);
   }
 }
