@@ -2,6 +2,6 @@
 
 
 
-[GH Pages](https://errand.github.io/ahj-popovers/) 
+[GH Pages](https://errand.github.io/ajs-popovers/) 
 
 ---
